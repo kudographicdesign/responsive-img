@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head><title>Responsive-img</title></head>
+<body style="margin: 0;">
+    <canvas id="myCanvas" style="display:none;"></canvas>
+    <div id="colorContainer" style="display: flex; flex-wrap: wrap; width: 100%;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let currentImageIndex = 1;
+            let image = new Image();
+            loadImage(currentImageIndex);
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === '4') {
+                    window.resizeTo(window.screen.availWidth / 2, window.screen.availHeight / 2);
+                    // 一つ前の画像に切り替え（ループ）
+                    currentImageIndex = (currentImageIndex - 1 < 1) ? 100 : currentImageIndex - 1;
+                    loadImage(currentImageIndex);
+                } else if (event.key === '6') {
+                    // 一つ後の画像に切り替え（ループ）
+                    currentImageIndex = (currentImageIndex + 1 > 100) ? 1 : currentImageIndex + 1;
+                    loadImage(currentImageIndex);
+                }
+            });
+
+            function loadImage(index) {
+                image.src = index.toString().padStart(3, '0') + '.jpg';
+
+                image.onload = function() {
+                    let canvas = document.getElementById('myCanvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    
+                    let context = canvas.getContext('2d');
+                    context.drawImage(image, 0, 0, image.width, image.height);
+                    
+                    let imageData = context.getImageData(0, 0, image.width, image.height);
+                    let data = imageData.data;
+                    
+                    let colorContainer = document.getElementById('colorContainer');
+                    colorContainer.innerHTML = '';
+                    for (let i = 0; i < data.length; i += 4) {
+                        let red = data[i];
+                        let green = data[i + 1];
+                        let blue = data[i + 2];
+                        let alpha = data[i + 3] / 255;
+                        
+                        let colorDiv = document.createElement('div');
+                        colorDiv.style.width = '4px';
+                        colorDiv.style.height = '4px';
+                        colorDiv.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+                        colorContainer.appendChild(colorDiv);
+                    }
+                };
+            }
+        });
+    </script>
+</body>
+</html>
